@@ -1,61 +1,51 @@
-const usuario = require('../models/usuario');
-const Usuario = require('../models/usuario');
+
+const Medico = require('../models/medico');
 const { response } = require('express');
 const {validationResult} = require('express-validator')
 const bcrypt = require('bcryptjs')
 const { generarJWT } = require('../helpers/jwt');
-const { Promise } = require('mongoose');
 
-const getUsuarios = async(req, res) => {
+
+
+const getMedicos = async(req, res) => {
     //estados del http --> res.status(400).
 
-    const desde = Number(req.query.desde) || 0;
-    console.log(desde);
-    // const usuario = await Usuario.find({}, 'nombre email role google')
-    //                              .skip( desde )
-    //                              .limit(5);
-
-    // const total = await Usuario.count();
-
-    const [usuarios, total ] = await Promise.all([
-        Usuario.find({}, 'nombre email role google img')
-               .skip( desde )
-               .limit(5),
-               
-        Usuario.countDocuments()
-    ])
+    const medicos = await Medico.find().populate('hospital', 'nombre').populate('usuario', 'nombre');
+    
     res.json({
         ok: true,   
-        usuarios, 
-        total
+        medicos
     })
 }
 
-    const crearUsuarios = async (req, res = response) => {
+    const crearMedicos = async (req, res = response) => {
         console.log(req.body);
-        const {email, password, nombre} = req.body;
+        const uid = req.uid;
+        const medico = new Medico({
+            usuario: uid,
+            ...req.body
+        })
 
         
 
         try {
-            const existeEmail = await Usuario.findOne({email});
-            if(existeEmail){
-                return res.status(400).json({ok: false, msg: 'Email already exists'})
-            }
+            // const existeEmail = await Usuario.findOne({email});
+            // if(existeEmail){
+            //     return res.status(400).json({ok: false, msg: 'Email already exists'})
+            // }
 
-            const usuario = new Usuario(req.body);
-            // encriptar password
-            const salt = bcrypt.genSaltSync();
-            usuario.password = bcrypt.hashSync(password, salt)
+            // const usuario = new Usuario(req.body);
+            // // encriptar password
+            // const salt = bcrypt.genSaltSync();
+            // usuario.password = bcrypt.hashSync(password, salt)
 
             //guardar usuario
-            const usuarioCreado = await usuario.save();
-            const token = await generarJWT(usuarioCreado.id)
+            const medicoCreado = await medico.save();
+            //const token = await generarJWT(usuarioCreado.id)
             //estados del http --> res.status(400).
                 res.json({
                     ok: true,
-                    usuario: usuarioCreado,
-                    token
+                    medico: medicoCreado
                 });
         }
             
@@ -69,7 +59,7 @@ const getUsuarios = async(req, res) => {
         }
     }
 
-    const actualizarUsuario = async (req, res = response) => {
+    const actualizarMedico = async (req, res = response) => {
         
         const uid = req.params.id;
         
@@ -113,7 +103,7 @@ const getUsuarios = async(req, res) => {
         }
     }
 
-    const borrarUsuario = async (req, res = response) => {
+    const borrarMedico = async (req, res = response) => {
 
         const uid = req.params.id;
         try {
@@ -141,8 +131,8 @@ const getUsuarios = async(req, res) => {
     
 
     module.exports = {
-        getUsuarios,
-        crearUsuarios,
-        actualizarUsuario,
-        borrarUsuario
+        getMedicos,
+        crearMedicos,
+        actualizarMedico,
+        borrarMedico
     }

@@ -17,6 +17,12 @@ dbConnection();
 app.use('/api/usuarios', require('./routes/usuarios'));
 
 app.use('/api/login', require('./routes/auth'));
+
+app.use('/api/hospitales', require('./routes/hospitales'));
+app.use('/api/todo', require('./routes/busquedas'));
+app.use('/api/uploads', require('./routes/uploads'));
+
+app.use('/api/medicos', require('./routes/medicos'));
 //L7MBPzs8cJX4JE5
 // app.get('/api/usuarios',(req, res) => {
 // //estados del http --> res.status(400).
